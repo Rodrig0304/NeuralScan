@@ -1,10 +1,36 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import logo from "../images/logo.png";
 import userIcon from "../images/user.PNG";
 import passwordIcon from "../images/password.PNG";
 
 const Login = () => {
+  const [correo, setCorreo] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ correo, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        navigate("/menu");
+      } else {
+        alert(data.detail || "Error en el inicio de sesión ❌");
+      }
+    } catch (error) {
+      alert("Error al conectar con el servidor ⚠️");
+    }
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-[#0D4E61] via-[#0BA2C4] to-[#10BCE3]">
       <div className="flex bg-white rounded-2xl shadow-lg w-[800px] h-[400px] overflow-hidden">
@@ -27,15 +53,18 @@ const Login = () => {
             Inicio de sesión
           </h2>
 
-          <form className="mt-4">
+          <form className="mt-4" onSubmit={handleLogin}>
             {/* Campo Usuario */}
             <div className="mb-3">
               <div className="flex items-center py-2 border-b border-gray-400">
                 <img src={userIcon} alt="Usuario" className="w-8 h-8 mr-2" />
                 <input
-                  type="text"
-                  placeholder="Usuario"
+                  type="email"
+                  placeholder="Correo"
+                  value={correo}
+                  onChange={(e) => setCorreo(e.target.value)}
                   className="w-full focus:outline-none italic text-[#8B8787] text-2xl font-normal font-[Inter] placeholder:font-normal"
+                  required
                 />
               </div>
             </div>
@@ -51,7 +80,10 @@ const Login = () => {
                 <input
                   type="password"
                   placeholder="Contraseña"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="w-full focus:outline-none italic text-[#8B8787] text-2xl font-normal font-[Inter] placeholder:font-normal"
+                  required
                 />
               </div>
             </div>
@@ -60,13 +92,12 @@ const Login = () => {
               ¿Olvidaste tu contraseña?
             </p>
 
-            {/* Link a la página de menú */}
-            <Link
-              to="/menu"
+            <button
+              type="submit"
               className="block w-full mt-4 bg-[#17A3B8] text-white py-2 rounded-full font-semibold text-center hover:bg-[#0F8698] transition font-[Inter]"
             >
               Acceder
-            </Link>
+            </button>
           </form>
         </div>
       </div>
